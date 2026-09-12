@@ -15,7 +15,13 @@ export async function GET(req: Request) {
     const { facilities, missing } = attachCoords(items, coords as unknown as CoordsIndex);
     return NextResponse.json(
       { sido, fetchedAt: new Date().toISOString(), items: facilities, missingCoords: missing },
-      { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=21600' } },
+      {
+        headers: {
+          // 브라우저는 매번 재검증, Vercel CDN만 1시간 캐시 (upstream 캐시는 fetch revalidate 6h)
+          'Cache-Control': 'public, max-age=0, must-revalidate',
+          'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=21600',
+        },
+      },
     );
   } catch (e) {
     console.error('[facilities]', e);

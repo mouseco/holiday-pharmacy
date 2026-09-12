@@ -31,11 +31,10 @@ describe('parseHolidayXml', () => {
     expect(items[0]).toEqual({
       id: 'A1', name: '서울의원', type: 'hospital', divName: '의원',
       addr: '서울특별시 종로구 1', tel: '02-111-1111',
-      // 시간이 없는 날짜(dutyDay3)도 유지, 날짜는 YYYYMMDD로 정규화
+      // 시간이 없는 날짜(dutyDay3)는 휴진이므로 제외, 날짜는 YYYYMMDD로 정규화
       schedule: [
         { date: '20260924', time: '09:00~13:00' },
         { date: '20260925', time: '09:00~18:00' },
-        { date: '20260926', time: '' },
       ],
       note: '점심 12~13시 휴진',
     });

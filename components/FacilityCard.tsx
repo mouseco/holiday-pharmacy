@@ -25,7 +25,7 @@ export default function FacilityCard({ f, selected, onSelect }: Props) {
       <p className="mt-1 text-sm text-gray-700">{f.addr}</p>
       <ul className="mt-1 text-sm">
         {f.schedule.map((s) => (
-          <li key={s.date}><span className="text-gray-500">{fmtDate(s.date)}</span> {s.time || '시간 미기재'}</li>
+          <li key={s.date}><span className="text-gray-500">{fmtDate(s.date)}</span> {s.time}</li>
         ))}
       </ul>
       {f.note && <p className="mt-1 text-xs text-gray-500">{f.note}</p>}

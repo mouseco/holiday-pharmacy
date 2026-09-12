@@ -36,10 +36,12 @@ export function parseHolidayXml(xml: string): { items: HolidayItem[]; totalCount
 function toHolidayItem(r: RawItem): HolidayItem | null {
   if (!r.hpid) return null;
 
+  // 모든 기관이 연휴 날짜 전체를 나열하고, 실제 진료하는 날에만 dutyDaytimeN 이 채워진다
   const schedule: HolidayItem['schedule'] = [];
   for (let i = 1; i <= 10; i++) {
     const date = r[`dutyDay${i}`];
-    if (date) schedule.push({ date: date.replace(/-/g, ''), time: r[`dutyDaytime${i}`] ?? '' });
+    const time = r[`dutyDaytime${i}`];
+    if (date && time) schedule.push({ date: date.replace(/-/g, ''), time });
   }
 
   // 문서는 dutyDivNam/dutyDayEtc 이지만 실제 응답은 dutyDivName/dutyDayetc
