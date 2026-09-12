@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+/* 디자인 토큰 — 색은 기관 구분(병의원/약국) 의미로만 쓴다 */
+@theme {
+  --color-ink: #16211c;
+  --color-ink-soft: #3f4a45;
+  --color-mute: #6b7570;
+  --color-line: #d9ded9;
+  --color-ground: #f5f6f2;
+  --color-surface: #ffffff;
+  --color-hospital: #c8352e;
+  --color-hospital-soft: #fbe9e7;
+  --color-pharmacy: #1e7f52;
+  --color-pharmacy-soft: #e3f2ea;
+  --font-sans: var(--font-plex), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+
+html {
+  font-size: 15px;
+  word-break: keep-all;
+}
+@media (min-width: 640px) {
+  html { font-size: 16px; }
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }

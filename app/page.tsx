@@ -4,13 +4,14 @@ import FacilityList from '@/components/FacilityList';
 import FacilityMap from '@/components/FacilityMap';
 import FilterBar from '@/components/FilterBar';
 import LocationBar from '@/components/LocationBar';
+import { fmtMonthDay, todayKey } from '@/lib/dates';
 import { filterAndSort, uniqueDates, type TypeFilter } from '@/lib/filter';
 import type { LatLng } from '@/lib/geo';
 import { coordToSido } from '@/lib/kakao';
 import { SIDO_LIST, toApiSido } from '@/lib/sido';
 import type { Facility } from '@/lib/types';
 
-type Data = { sido: string; fetchedAt: string; items: Facility[] };
+type Data = { sido: string; fetchedAt: string; items: Facility[]; missingCoords: number };
 
 export default function Page() {
   const [origin, setOrigin] = useState<LatLng | null>(null); // 내 위치
@@ -38,14 +39,14 @@ export default function Page() {
       if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
       setData(json);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '불러오기 실패');
+      setError(e instanceof Error ? e.message : '불러오지 못했습니다');
     } finally {
       setLoading(false);
     }
   }, []);
 
   const locate = useCallback(() => {
-    if (!navigator.geolocation) { setError('이 브라우저는 위치 정보를 지원하지 않습니다. 시도를 직접 선택하세요.'); return; }
+    if (!navigator.geolocation) { setError('이 브라우저는 위치 정보를 지원하지 않습니다. 지역을 직접 선택하세요.'); return; }
     setLocating(true); setError(null);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -54,9 +55,9 @@ export default function Page() {
         const region = await coordToSido(p.lat, p.lng);
         const s = region ? toApiSido(region) : null;
         setLocating(false);
-        if (s) { setSido(s); load(s); } else setError('현재 위치의 시도를 알 수 없습니다. 시도를 직접 선택하세요.');
+        if (s) { setSido(s); load(s); } else setError('현재 위치의 지역을 알 수 없습니다. 지역을 직접 선택하세요.');
       },
-      () => { setLocating(false); setError('위치 권한이 거부되었습니다. 시도를 직접 선택하세요.'); },
+      () => { setLocating(false); setError('위치 권한이 없어 현재 위치를 쓸 수 없습니다. 지역을 직접 선택하세요.'); },
       { enableHighAccuracy: true, timeout: 10000 },
     );
   }, [load]);
@@ -64,6 +65,7 @@ export default function Page() {
   const selectSido = useCallback((s: string) => { setOrigin(null); setSido(s); load(s); }, [load]);
 
   const dates = useMemo(() => (data ? uniqueDates(data.items) : []), [data]);
+  const today = useMemo(() => { const t = todayKey(); return dates.includes(t) ? t : null; }, [dates]);
   const items = useMemo(
     () => (data ? filterAndSort(data.items, { origin: center, radiusKm: radius, type, date }) : []),
     [data, center, radius, type, date],
@@ -74,47 +76,72 @@ export default function Page() {
     document.getElementById(`fac-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, []);
 
-  const emptyMessage = !sido
-    ? '내 위치로 찾기를 누르거나 시도를 선택하세요.'
+  const empty = !sido
+    ? { title: '내 위치로 찾기를 누르거나 지역을 선택하세요.' }
     : data && data.items.length === 0
-      ? '해당 지역의 명절 진료 정보가 아직 등록되지 않았습니다. 응급의료포털(e-gen.or.kr)을 확인하세요.'
-      : '반경 안에 결과가 없습니다. 반경을 넓혀보세요.';
+      ? { title: '이 지역의 연휴 진료 정보가 아직 등록되지 않았습니다.', hint: '응급의료포털 e-gen.or.kr 또는 129에서 확인할 수 있습니다.' }
+      : { title: `${radius}km 안에 조건에 맞는 곳이 없습니다.`, hint: '반경을 넓히거나 날짜 조건을 풀어보세요.' };
+
+  const period = dates.length ? `${fmtMonthDay(dates[0])}부터 ${fmtMonthDay(dates[dates.length - 1])}까지` : null;
+  const fetched = data ? new Date(data.fetchedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
 
   return (
-    <main className="mx-auto max-w-3xl space-y-4 px-4 py-6">
-      <header>
-        <h1 className="text-2xl font-bold">추석 연휴 문 여는 병원·약국</h1>
-        <p className="text-sm text-gray-600">
-          내 위치 주변의 명절 비상진료기관을 거리순으로 보여줍니다.
-          {data && <> · 기준 {new Date(data.fetchedAt).toLocaleString('ko-KR')}</>}
+    <div className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:pt-10">
+      <header className="mb-5">
+        <p className="text-[15px] font-medium text-mute">추석 연휴</p>
+        <h1 className="mt-0.5 text-[28px] font-bold leading-tight tracking-tight sm:text-4xl">문 여는 병원과 약국</h1>
+        <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
+          {period ? `${period} 연휴 기간의 진료 정보입니다. ` : '내 위치에서 가까운 순으로 보여줍니다. '}
+          진료 시간은 바뀔 수 있으니 방문 전에 전화로 확인하세요.
         </p>
       </header>
 
-      <LocationBar sido={sido} locating={locating} onLocate={locate} onSelectSido={selectSido} />
-      <FilterBar type={type} onType={setType} date={date} dates={dates} onDate={setDate} radius={radius} onRadius={setRadius} />
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-6">
+        <section className="space-y-3 lg:col-start-1 lg:row-start-1">
+          <LocationBar sido={sido} hasOrigin={!!origin} locating={locating} onLocate={locate} onSelectSido={selectSido} />
+          <FilterBar type={type} onType={setType} date={date} dates={dates} onDate={setDate} radius={radius} onRadius={setRadius} />
+          {error && (
+            <div role="alert" className="flex items-center justify-between gap-3 rounded-lg border border-hospital/40 bg-hospital-soft px-3.5 py-2.5 text-sm text-ink">
+              <span>{error}</span>
+              {sido && <button type="button" onClick={() => load(sido)} className="shrink-0 font-semibold underline">다시 불러오기</button>}
+            </div>
+          )}
+        </section>
 
-      {error && (
-        <div className="flex items-center justify-between rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-          <span>{error}</span>
-          {sido && <button type="button" onClick={() => load(sido)} className="underline">다시 시도</button>}
-        </div>
-      )}
+        <aside className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <div className="lg:sticky lg:top-6">
+            <FacilityMap
+              center={center}
+              origin={origin}
+              items={items}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              className="h-64 sm:h-80 lg:h-[calc(100vh-3rem)] lg:max-h-[860px]"
+            />
+          </div>
+        </aside>
 
-      <FacilityMap center={center} origin={origin} items={items} selectedId={selectedId} onSelect={onSelect} />
+        <section className="lg:col-start-1 lg:row-start-2">
+          {loading ? (
+            <p className="py-10 text-center text-sm text-mute">진료 정보를 불러오는 중입니다</p>
+          ) : (
+            <>
+              {data && (
+                <p className="mb-2 text-sm text-mute">
+                  가까운 순 <strong className="font-semibold text-ink">{items.length}곳</strong>
+                  {' '}(지역 전체 {data.items.length}곳{data.missingCoords ? `, 위치 미확인 ${data.missingCoords}곳 제외` : ''})
+                </p>
+              )}
+              <FacilityList items={items} dates={dates} today={today} selectedId={selectedId} onSelect={onSelect} empty={empty} />
+            </>
+          )}
+        </section>
+      </div>
 
-      {loading ? (
-        <p className="text-center text-sm text-gray-600">불러오는 중…</p>
-      ) : (
-        <>
-          {data && <p className="text-sm text-gray-600">{items.length}곳 표시 (전체 {data.items.length}곳)</p>}
-          <FacilityList items={items} selectedId={selectedId} onSelect={onSelect} emptyMessage={emptyMessage} />
-        </>
-      )}
-
-      <footer className="border-t pt-4 text-xs text-gray-500">
-        출처: 국립중앙의료원 전국 명절 비상 진료기관 정보 조회 서비스(공공데이터포털) · 응급의료포털 E-Gen.
-        진료 시간은 변경될 수 있으니 방문 전 전화로 확인하세요.
+      <footer className="mt-10 border-t border-line pt-4 text-[13px] leading-relaxed text-mute">
+        자료: 국립중앙의료원 전국 명절 비상 진료기관 정보 조회 서비스(공공데이터포털){fetched ? `, ${fetched} 기준` : ''}.
+        응급 상황에는 119, 문 여는 병원·약국 안내는 129 또는 응급의료포털 e-gen.or.kr.
       </footer>
-    </main>
+    </div>
   );
 }

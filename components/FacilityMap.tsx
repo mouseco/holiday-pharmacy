@@ -10,10 +10,11 @@ type Props = {
   items: FacilityWithDistance[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  className?: string;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export default function FacilityMap({ center, origin, items, selectedId, onSelect }: Props) {
+export default function FacilityMap({ center, origin, items, selectedId, onSelect, className = '' }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
@@ -22,14 +23,22 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
   // 지도 생성
   useEffect(() => {
     let cancelled = false;
+    let ro: ResizeObserver | undefined;
     loadKakao().then((kakao) => {
       if (cancelled || !el.current || mapRef.current) return;
       mapRef.current = new kakao.maps.Map(el.current, {
         center: new kakao.maps.LatLng(center.lat, center.lng),
         level: 5,
       });
+      // 컨테이너 크기가 바뀌면(반응형 레이아웃) 지도 타일을 다시 배치
+      ro = new ResizeObserver(() => {
+        const c = mapRef.current?.getCenter();
+        mapRef.current?.relayout();
+        if (c) mapRef.current?.setCenter(c);
+      });
+      ro.observe(el.current);
     });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; ro?.disconnect(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -47,7 +56,7 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
       if (!origin || !mapRef.current) return;
       originRef.current = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(origin.lat, origin.lng),
-        content: '<div style="width:16px;height:16px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px #2563eb"></div>',
+        content: '<div style="width:16px;height:16px;border-radius:50%;background:#16211c;border:3px solid #fff;box-shadow:0 0 0 2px #16211c"></div>',
         zIndex: 10,
       });
       originRef.current.setMap(mapRef.current);
@@ -61,7 +70,7 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
       markersRef.current.forEach((m) => m.setMap(null));
       markersRef.current = items.map((f) => {
         const selected = f.id === selectedId;
-        const color = f.type === 'pharmacy' ? '#16a34a' : '#dc2626';
+        const color = f.type === 'pharmacy' ? '#1e7f52' : '#c8352e';
         const size = selected ? 22 : 14;
         const overlay = new kakao.maps.CustomOverlay({
           position: new kakao.maps.LatLng(f.lat, f.lng),
@@ -87,5 +96,5 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
     return () => node.removeEventListener('click', handler);
   }, [onSelect]);
 
-  return <div ref={el} className="h-64 w-full rounded-lg border sm:h-80" />;
+  return <div ref={el} className={`w-full overflow-hidden rounded-xl border border-line bg-ground ${className}`} />;
 }
