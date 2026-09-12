@@ -14,14 +14,14 @@ type Props = {
 export default function FacilityList({ items, dates, today, selectedId, onSelect, empty }: Props) {
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-line px-6 py-10 text-center">
+      <div className="rounded-2xl border border-dashed border-line bg-surface/60 px-6 py-10 text-center">
         <p className="font-medium">{empty.title}</p>
         {empty.hint && <p className="mt-1 text-sm text-mute">{empty.hint}</p>}
       </div>
     );
   }
   return (
-    <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line">
+    <ul className="space-y-3">
       {items.map((f) => (
         <FacilityCard key={f.id} f={f} dates={dates} today={today} selected={f.id === selectedId} onSelect={onSelect} />
       ))}

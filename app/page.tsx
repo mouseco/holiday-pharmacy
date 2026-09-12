@@ -1,9 +1,8 @@
 'use client';
 import { useCallback, useMemo, useState } from 'react';
+import ControlPanel from '@/components/ControlPanel';
 import FacilityList from '@/components/FacilityList';
 import FacilityMap from '@/components/FacilityMap';
-import FilterBar from '@/components/FilterBar';
-import LocationBar from '@/components/LocationBar';
 import { fmtMonthDay, todayKey } from '@/lib/dates';
 import { filterAndSort, uniqueDates, type TypeFilter } from '@/lib/filter';
 import type { LatLng } from '@/lib/geo';
@@ -86,22 +85,22 @@ export default function Page() {
   const fetched = data ? new Date(data.fetchedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:pt-10">
-      <header className="mb-5">
-        <p className="text-[15px] font-medium text-mute">추석 연휴</p>
-        <h1 className="mt-0.5 text-[28px] font-bold leading-tight tracking-tight sm:text-4xl">문 여는 병원과 약국</h1>
-        <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
-          {period ? `${period} 연휴 기간의 진료 정보입니다. ` : '내 위치에서 가까운 순으로 보여줍니다. '}
-          진료 시간은 바뀔 수 있으니 방문 전에 전화로 확인하세요.
+    <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:pt-8">
+      <header className="mb-4 lg:mb-6">
+        <h1 className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl">추석 연휴 문 여는 병원·약국</h1>
+        <p className="mt-1.5 text-[15px] text-ink-soft">
+          {period ? `${period}, 내 위치에서 가까운 순으로 보여줍니다.` : '내 위치에서 가까운 순으로 보여줍니다.'}
         </p>
       </header>
 
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-6">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:grid-rows-[auto_1fr] lg:gap-6">
         <section className="space-y-3 lg:col-start-1 lg:row-start-1">
-          <LocationBar sido={sido} hasOrigin={!!origin} locating={locating} onLocate={locate} onSelectSido={selectSido} />
-          <FilterBar type={type} onType={setType} date={date} dates={dates} onDate={setDate} radius={radius} onRadius={setRadius} />
+          <ControlPanel
+            sido={sido} hasOrigin={!!origin} locating={locating} onLocate={locate} onSelectSido={selectSido}
+            type={type} onType={setType} date={date} dates={dates} onDate={setDate} radius={radius} onRadius={setRadius}
+          />
           {error && (
-            <div role="alert" className="flex items-center justify-between gap-3 rounded-lg border border-hospital/40 bg-hospital-soft px-3.5 py-2.5 text-sm text-ink">
+            <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-hospital/40 bg-hospital-soft px-4 py-3 text-sm text-ink">
               <span>{error}</span>
               {sido && <button type="button" onClick={() => load(sido)} className="shrink-0 font-semibold underline">다시 불러오기</button>}
             </div>
@@ -116,21 +115,25 @@ export default function Page() {
               items={items}
               selectedId={selectedId}
               onSelect={onSelect}
-              className="h-64 sm:h-80 lg:h-[calc(100vh-3rem)] lg:max-h-[860px]"
+              className="h-72 sm:h-96 lg:h-[calc(100vh-3rem)] lg:max-h-[900px]"
             />
           </div>
         </aside>
 
-        <section className="lg:col-start-1 lg:row-start-2">
+        <section className="self-start lg:col-start-1 lg:row-start-2">
           {loading ? (
-            <p className="py-10 text-center text-sm text-mute">진료 정보를 불러오는 중입니다</p>
+            <p className="rounded-2xl border border-line bg-surface px-6 py-10 text-center text-sm text-mute">진료 정보를 불러오는 중입니다</p>
           ) : (
             <>
               {data && (
-                <p className="mb-2 text-sm text-mute">
-                  가까운 순 <strong className="font-semibold text-ink">{items.length}곳</strong>
-                  {' '}(지역 전체 {data.items.length}곳{data.missingCoords ? `, 위치 미확인 ${data.missingCoords}곳 제외` : ''})
-                </p>
+                <div className="mb-3 flex items-baseline justify-between">
+                  <p className="text-[15px]">
+                    가까운 순 <strong className="font-semibold">{items.length}곳</strong>
+                  </p>
+                  <p className="text-[13px] text-mute">
+                    {data.sido} 전체 {data.items.length.toLocaleString()}곳{data.missingCoords ? ` (위치 미확인 ${data.missingCoords}곳 제외)` : ''}
+                  </p>
+                </div>
               )}
               <FacilityList items={items} dates={dates} today={today} selectedId={selectedId} onSelect={onSelect} empty={empty} />
             </>
@@ -138,9 +141,9 @@ export default function Page() {
         </section>
       </div>
 
-      <footer className="mt-10 border-t border-line pt-4 text-[13px] leading-relaxed text-mute">
-        자료: 국립중앙의료원 전국 명절 비상 진료기관 정보 조회 서비스(공공데이터포털){fetched ? `, ${fetched} 기준` : ''}.
-        응급 상황에는 119, 문 여는 병원·약국 안내는 129 또는 응급의료포털 e-gen.or.kr.
+      <footer className="mt-12 border-t border-line pt-5 text-[13px] leading-relaxed text-mute">
+        <p>진료 시간은 바뀔 수 있으니 방문 전에 전화로 확인하세요. 응급 상황은 119, 문 여는 병원·약국 안내는 129 또는 응급의료포털 e-gen.or.kr.</p>
+        <p className="mt-1">자료: 국립중앙의료원 전국 명절 비상 진료기관 정보 조회 서비스(공공데이터포털){fetched ? `, ${fetched} 기준` : ''}</p>
       </footer>
     </div>
   );

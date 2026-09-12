@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { pinSvg } from './icons';
 import { loadKakao } from '@/lib/kakao';
 import type { LatLng } from '@/lib/geo';
 import type { FacilityWithDistance } from '@/lib/filter';
@@ -56,7 +57,7 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
       if (!origin || !mapRef.current) return;
       originRef.current = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(origin.lat, origin.lng),
-        content: '<div style="width:16px;height:16px;border-radius:50%;background:#16211c;border:3px solid #fff;box-shadow:0 0 0 2px #16211c"></div>',
+        content: '<div style="width:18px;height:18px;border-radius:50%;background:#16211c;border:3px solid #fff;box-shadow:0 0 0 3px rgba(22,33,28,.25)"></div>',
         zIndex: 10,
       });
       originRef.current.setMap(mapRef.current);
@@ -70,13 +71,11 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
       markersRef.current.forEach((m) => m.setMap(null));
       markersRef.current = items.map((f) => {
         const selected = f.id === selectedId;
-        const color = f.type === 'pharmacy' ? '#1e7f52' : '#c8352e';
-        const size = selected ? 22 : 14;
         const overlay = new kakao.maps.CustomOverlay({
           position: new kakao.maps.LatLng(f.lat, f.lng),
           yAnchor: 1,
           zIndex: selected ? 5 : 1,
-          content: `<div data-id="${f.id}" title="${f.name}" style="cursor:pointer;width:${size}px;height:${size}px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>`,
+          content: `<div data-id="${f.id}" title="${f.name.replace(/"/g, '')}" style="cursor:pointer">${pinSvg(f.type, selected)}</div>`,
         });
         overlay.setMap(mapRef.current);
         return overlay;
@@ -96,5 +95,14 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
     return () => node.removeEventListener('click', handler);
   }, [onSelect]);
 
-  return <div ref={el} className={`w-full overflow-hidden rounded-xl border border-line bg-ground ${className}`} />;
+  return (
+    <div className={`relative ${className}`}>
+      <div ref={el} className="h-full w-full overflow-hidden rounded-2xl border border-line bg-ground" />
+      <div className="pointer-events-none absolute left-3 top-3 z-10 flex gap-3 rounded-lg bg-surface/95 px-3 py-1.5 text-[12px] font-medium shadow-sm">
+        <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-hospital" />병의원</span>
+        <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-pharmacy" />약국</span>
+        {origin && <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-ink" />내 위치</span>}
+      </div>
+    </div>
+  );
 }
