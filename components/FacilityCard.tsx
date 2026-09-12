@@ -24,7 +24,7 @@ export default function FacilityCard({ f, dates, today, selected, onSelect }: Pr
       id={`fac-${f.id}`}
       onClick={() => onSelect(f.id)}
       className={`cursor-pointer rounded-2xl border bg-surface p-4 transition-[border-color,box-shadow] ${
-        selected ? 'border-ink shadow-[0_0_0_2px_var(--color-ink)]' : 'border-line hover:border-mute'
+        selected ? 'border-accent shadow-[0_0_0_2px_var(--color-accent)]' : 'border-line hover:border-accent/60'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -51,7 +51,7 @@ export default function FacilityCard({ f, dates, today, selected, onSelect }: Pr
               key={d}
               className={`rounded-lg px-1 py-2 text-center ${
                 time ? (isPh ? 'bg-pharmacy-soft' : 'bg-hospital-soft') : 'bg-ground text-mute'
-              } ${isToday ? 'outline outline-2 outline-ink' : ''}`}
+              } ${isToday ? 'outline outline-2 outline-accent' : ''}`}
             >
               <div className="text-[11px] leading-none">
                 {fmtMonthDay(d)} {weekday(d)}{holidayLabel(d) ? ` ${holidayLabel(d)}` : ''}

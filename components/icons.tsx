@@ -49,7 +49,7 @@ export function CrossBadge({ kind, className = 'h-5 w-5' }: P & { kind: 'hospita
 
 /** 지도 핀 SVG 문자열 (카카오 CustomOverlay content 용) */
 export function pinSvg(kind: 'hospital' | 'pharmacy', selected: boolean): string {
-  const c = kind === 'hospital' ? '#c8352e' : '#1e7f52';
+  const c = kind === 'hospital' ? '#c3423f' : '#2e7d4f';
   const s = selected ? 34 : 24;
   return `<svg width="${s}" height="${s * 1.25}" viewBox="0 0 24 30" style="display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))">
     <path d="M12 29s10-8.6 10-16A10 10 0 0 0 2 13c0 7.4 10 16 10 16Z" fill="${c}" stroke="#fff" stroke-width="1.5"/>

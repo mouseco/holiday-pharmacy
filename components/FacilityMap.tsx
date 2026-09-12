@@ -57,7 +57,7 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
       if (!origin || !mapRef.current) return;
       originRef.current = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(origin.lat, origin.lng),
-        content: '<div style="width:18px;height:18px;border-radius:50%;background:#16211c;border:3px solid #fff;box-shadow:0 0 0 3px rgba(22,33,28,.25)"></div>',
+        content: '<div style="width:18px;height:18px;border-radius:50%;background:#d9662a;border:3px solid #fff;box-shadow:0 0 0 3px rgba(217,102,42,.3)"></div>',
         zIndex: 10,
       });
       originRef.current.setMap(mapRef.current);
@@ -101,7 +101,7 @@ export default function FacilityMap({ center, origin, items, selectedId, onSelec
       <div className="pointer-events-none absolute left-3 top-3 z-10 flex gap-3 rounded-lg bg-surface/95 px-3 py-1.5 text-[12px] font-medium shadow-sm">
         <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-hospital" />병의원</span>
         <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-pharmacy" />약국</span>
-        {origin && <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-ink" />내 위치</span>}
+        {origin && <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-accent" />내 위치</span>}
       </div>
     </div>
   );

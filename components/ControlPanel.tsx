@@ -43,7 +43,7 @@ function Segment<T extends string | number>({
             aria-checked={active}
             onClick={() => onChange(o.v)}
             className={`flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-lg px-1 leading-none transition-colors sm:px-2 ${
-              active ? 'bg-ink font-semibold text-white shadow-sm' : 'font-medium text-ink-soft hover:bg-surface'
+              active ? 'bg-accent font-semibold text-white shadow-sm' : 'font-medium text-ink-soft hover:bg-surface'
             }`}
           >
             {o.text}
@@ -63,7 +63,7 @@ export default function ControlPanel(p: Props) {
             type="button"
             onClick={p.onLocate}
             disabled={p.locating}
-            className={`${CONTROL} inline-flex items-center gap-2 bg-ink px-4 font-semibold text-white transition-colors hover:bg-ink-soft disabled:opacity-60`}
+            className={`${CONTROL} inline-flex items-center gap-2 bg-accent px-4 font-semibold text-white transition-colors hover:bg-accent-deep disabled:opacity-60`}
           >
             <CrosshairIcon className={`h-[18px] w-[18px] ${p.locating ? 'animate-spin' : ''}`} />
             {p.locating ? '확인 중' : p.hasOrigin ? '내 위치' : '내 위치로 찾기'}

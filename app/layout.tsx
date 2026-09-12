@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: '내 위치 주변에서 추석 연휴에 문을 여는 병·의원과 약국을 거리순으로 찾아보세요.',
 };
 
-export const viewport: Viewport = { themeColor: '#16211c' };
+export const viewport: Viewport = { themeColor: '#1f2a47' };
 
 const KAKAO_SDK = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_JS_KEY}&libraries=services&autoload=false`;
 

@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useMemo, useState } from 'react';
+import ChuseokHero from '@/components/ChuseokHero';
 import ControlPanel from '@/components/ControlPanel';
 import FacilityList from '@/components/FacilityList';
 import FacilityMap from '@/components/FacilityMap';
@@ -86,13 +87,10 @@ export default function Page() {
   const fetched = data ? new Date(data.fetchedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:pt-8">
-      <header className="mb-4 lg:mb-6">
-        <h1 className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl">추석 연휴 문 여는 병원·약국</h1>
-        <p className="mt-1.5 text-[15px] text-ink-soft">
-          {period ? `${period}, 내 위치에서 가까운 순으로 보여줍니다.` : '내 위치에서 가까운 순으로 보여줍니다.'}
-        </p>
-      </header>
+    <div className="mx-auto max-w-6xl px-4 pb-16 pt-4 sm:px-6 lg:pt-6">
+      <div className="mb-5 lg:mb-6">
+        <ChuseokHero subtitle={period ? `${period}, 내 위치에서 가까운 순으로 보여줍니다.` : '내 위치에서 가까운 순으로 보여줍니다.'} />
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:grid-rows-[auto_1fr] lg:gap-6">
         <section className="space-y-3 lg:col-start-1 lg:row-start-1">
