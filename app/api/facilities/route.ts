@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
-import { fetchFacilitiesBySido } from '@/lib/fetchFacilities';
+import coords from '@/data/coords.json';
+import { fetchHolidayItemsBySido } from '@/lib/fetchFacilities';
+import { attachCoords } from '@/lib/parse';
 import { toApiSido } from '@/lib/sido';
+import type { CoordsIndex } from '@/lib/types';
 
 export async function GET(req: Request) {
   const raw = new URL(req.url).searchParams.get('sido') ?? '';
@@ -8,9 +11,10 @@ export async function GET(req: Request) {
   if (!sido) return NextResponse.json({ error: '지원하지 않는 시도입니다' }, { status: 400 });
 
   try {
-    const items = await fetchFacilitiesBySido(sido);
+    const items = await fetchHolidayItemsBySido(sido);
+    const { facilities, missing } = attachCoords(items, coords as unknown as CoordsIndex);
     return NextResponse.json(
-      { sido, fetchedAt: new Date().toISOString(), items },
+      { sido, fetchedAt: new Date().toISOString(), items: facilities, missingCoords: missing },
       { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=21600' } },
     );
   } catch (e) {
