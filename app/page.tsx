@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import ControlPanel from '@/components/ControlPanel';
 import FacilityList from '@/components/FacilityList';
 import FacilityMap from '@/components/FacilityMap';
+import SiteFooter from '@/components/SiteFooter';
 import { fmtMonthDay, todayKey } from '@/lib/dates';
 import { filterAndSort, uniqueDates, type TypeFilter } from '@/lib/filter';
 import type { LatLng } from '@/lib/geo';
@@ -141,10 +142,7 @@ export default function Page() {
         </section>
       </div>
 
-      <footer className="mt-12 border-t border-line pt-5 text-[13px] leading-relaxed text-mute">
-        <p>진료 시간은 바뀔 수 있으니 방문 전에 전화로 확인하세요. 응급 상황은 119, 문 여는 병원·약국 안내는 129 또는 응급의료포털 e-gen.or.kr.</p>
-        <p className="mt-1">자료: 국립중앙의료원 전국 명절 비상 진료기관 정보 조회 서비스(공공데이터포털){fetched ? `, ${fetched} 기준` : ''}</p>
-      </footer>
+      <SiteFooter fetched={fetched} />
     </div>
   );
 }
