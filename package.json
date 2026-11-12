@@ -11,7 +11,7 @@
     "build:coords": "node scripts/build-coords.mjs"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.11.1",
+    "fast-xml-parser": "^5.12.0",
     "next": "^16.4.2",
     "react": "19.2.8",
     "react-dom": "19.2.8"
